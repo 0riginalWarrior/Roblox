@@ -9,7 +9,7 @@ local function Create(type, properties)
 end
 
 -- Wait for 2 seconds before executing the GUI
-wait(0.5)
+wait(4)
 
 -- Main GUI code
 local ScreenGui = Create("ScreenGui", {
