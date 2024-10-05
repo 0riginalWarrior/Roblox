@@ -48,7 +48,7 @@ Create("TextLabel", {
     Font = Enum.Font.GothamBold,
     TextColor3 = Color3.fromRGB(255, 255, 255),
     TextSize = 18,
-    Text = "Jassy Poopy😫🤤",
+    Text = "Jassy Poopy🤤",
     TextXAlignment = Enum.TextXAlignment.Left,
     Parent = MainFrame
 })
