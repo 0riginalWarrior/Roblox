@@ -33,7 +33,7 @@ local function CreateGUI()
 
     local Widget = Create("Frame", {
         Name = "Widget",
-        Size = UDim2.new(1, -20, 0, 100),
+        Size = UDim2.new(1, -20, 0, 150),  
         Position = UDim2.new(0, 10, 0, 50),
         BackgroundColor3 = Color3.fromRGB(60, 60, 60),
         BorderSizePixel = 0,
@@ -50,7 +50,7 @@ local function CreateGUI()
         Font = Enum.Font.GothamBold,
         TextColor3 = Color3.fromRGB(255, 255, 255),
         TextSize = 18,
-        Text = "Jassy Poopy🤤",
+        Text = "Jassos tryna hack??💀😛👀😂",
         TextXAlignment = Enum.TextXAlignment.Left,
         Parent = MainFrame
     })
@@ -88,15 +88,21 @@ local function CreateGUI()
         return Button
     end
 
-    CreateButton("Dress", UDim2.new(0, 10, 0.5, -20), function()
+    CreateButton("Dress", UDim2.new(0, 10, 0, 10), function()
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/hellohellohell012321/DTI-GUI-V2/main/dti_gui_v2.lua",true))()
         end)
     end)
 
-    CreateButton("Admin", UDim2.new(1, -130, 0.5, -20), function()
+    CreateButton("Admin", UDim2.new(1, -130, 0, 10), function()
         pcall(function()
             loadstring(game:HttpGet("https://raw.githubusercontent.com/FilteringEnabled/NamelessAdmin/main/Source"))()
+        end)
+    end)
+
+    CreateButton("Invisible", UDim2.new(0.5, -60, 0, 60), function()
+        pcall(function()
+            loadstring(game:HttpGet('https://pastebin.com/raw/3Rnd9rHf'))()
         end)
     end)
 
