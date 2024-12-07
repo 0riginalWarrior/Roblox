@@ -97,11 +97,12 @@ local function CreateDebugUI()
     buttonLayout.SortOrder = Enum.SortOrder.LayoutOrder
     buttonLayout.Parent = actionFrame
 
+    -- Button styles including Copy All button
     local buttonStyles = {
         {Name = "Print", Color = Colors.Print},
         {Name = "Warn", Color = Colors.Warn},
         {Name = "Clear", Color = Colors.Accent},
-        {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)}
+        {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)} -- New Copy All button style
     }
 
     for i, style in ipairs(buttonStyles) do
@@ -194,15 +195,14 @@ local function AddDebugMessage(message, messageType)
 
     copyButton.MouseButton1Click:Connect(function()
         setclipboard(message) -- Copy the log text to clipboard when clicked
-        print("Copied to clipboard: " .. tostring(message))
     end)
 
     -- Parent the frame and update scrolling canvas size dynamically
     local listLayout = scrollFrame.UIListLayout or scrollFrame:FindFirstChildOfClass("UIListLayout")
-    
-    if listLayout then 
+
+    if listLayout then
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
-    end 
+    end
     scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y)
 end
 
@@ -210,21 +210,20 @@ end
 local function CopyAllMessages()
     local scrollFrame = game.Players.LocalPlayer.PlayerGui.ModernDebugPanel.MainFrame.ScrollFrame
     local allMessages = ""
-    
+
     for _, child in ipairs(scrollFrame:GetChildren()) do
         if child:IsA("Frame") then
-            local messageLabel = child:FindFirstChildOfClass("TextLabel")
-            if messageLabel and messageLabel.Name ~= "TitleLabel" then
-                allMessages = allMessages .. messageLabel.Text .. "\n"
+            local timestampLabel = child:FindFirstChild("TextLabel") -- The timestamp label
+            local messageLabel = child:FindFirstChildOfClass("TextLabel") -- The message label
+
+            if timestampLabel and messageLabel then
+                allMessages = allMessages .. timestampLabel.Text .. " " .. messageLabel.Text .. "\n"
             end
         end
     end
-    
+
     if allMessages ~= "" then
         setclipboard(allMessages)
-        print("Copied all messages to clipboard")
-    else
-        print("No messages to copy")
     end
 end
 
@@ -236,11 +235,11 @@ local function SetupButtons()
     local actionFrame = debugUI.MainFrame.ActionFrame
 
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
-        print("This is a test print message")
+        print("This is a test print Message")
     end)
 
     actionFrame.WarnButton.MouseButton1Click:Connect(function()
-        warn("This is a test warning message")
+        warn("This is a test warning Message")
     end)
 
     actionFrame.ClearButton.MouseButton1Click:Connect(function()
@@ -302,11 +301,15 @@ EnableDragging(debugUI.MainFrame)
 -- Animate the panel when it appears
 local function AnimatePanel()
     local frame = debugUI.MainFrame
-    frame.Position = UDim2.new(0.5, -250, 1.5, 0)
+    frame.Position = UDim2.new(0.5, -250, 0.5, -200)
+
     local goal = {}
     goal.Position = UDim2.new(0.5, -250, 0.5, -200)
+
     local info = TweenInfo.new(0.5, Enum.EasingStyle.Bounce, Enum.EasingDirection.Out)
+
     local tween = TweenService:Create(frame, info, goal)
+
     tween:Play()
 end
 
