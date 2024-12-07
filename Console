@@ -160,15 +160,15 @@ local function AddDebugMessage(message, messageType)
     if messageType == "print" then
         messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White
         messageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        messageLabel.Text = "✅ " .. message
+        messageLabel.Text = message
     elseif messageType == "warn" then
         messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 50, 20)
-        messageLabel.Text = "⚠️ " .. message
+        messageLabel.Text = message
     elseif messageType == "error" then
         messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Light red for better visibility
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
-        messageLabel.Text = "❌ " .. message
+        messageLabel.Text = message
     end
 
     messageLabel.Parent = messageFrame
@@ -230,90 +230,98 @@ local function CopyAllMessages()
 end
 
 -- Create the UI
-local debugUI = CreateDebugUI()
+local function SetupDebugUI()
+    local player = Players.LocalPlayer
+    local playerGui = player:WaitForChild("PlayerGui")
 
--- Setup button functionality
-local function SetupButtons()
-    local actionFrame = debugUI.MainFrame.ActionFrame
+    -- Check if the GUI already exists
+    if not playerGui:FindFirstChild("ModernDebugPanel") then
+        local debugUI = CreateDebugUI()
 
-    actionFrame.PrintButton.MouseButton1Click:Connect(function()
-        print("This is a test print Message")
-    end)
+        -- Setup button functionality
+        local function SetupButtons()
+            local actionFrame = debugUI.MainFrame.ActionFrame
 
-    actionFrame.WarnButton.MouseButton1Click:Connect(function()
-        warn("This is a test warning Message")
-    end)
+            actionFrame.PrintButton.MouseButton1Click:Connect(function()
+                print("This is a test print Message")
+            end)
 
-    actionFrame.ClearButton.MouseButton1Click:Connect(function()
-        local scrollFrame = debugUI.MainFrame.ScrollFrame
-        for _, child in ipairs(scrollFrame:GetChildren()) do
-            if child:IsA("Frame") then
-                child:Destroy()
-            end
+            actionFrame.WarnButton.MouseButton1Click:Connect(function()
+                warn("This is a test warning Message")
+            end)
+
+            actionFrame.ClearButton.MouseButton1Click:Connect(function()
+                local scrollFrame = debugUI.MainFrame.ScrollFrame
+                for _, child in ipairs(scrollFrame:GetChildren()) do
+                    if child:IsA("Frame") then
+                        child:Destroy()
+                    end
+                end
+                scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+            end)
+
+            actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
         end
-        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    end)
 
-    actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
-end
+        SetupButtons()
 
-SetupButtons()
+        -- Make the frame draggable
+        local function EnableDragging(frame)
+            local dragging
+            local dragInput
+            local dragStart
+            local startPos
 
--- Make the frame draggable
-local function EnableDragging(frame)
-    local dragging
-    local dragInput
-    local dragStart
-    local startPos
+            local function update(input)
+                local delta = input.Position - dragStart
+                frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
+            end
 
-    local function update(input)
-        local delta = input.Position - dragStart
-        frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
-    end
+            frame.InputBegan:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
+                    dragging = true
+                    dragStart = input.Position
+                    startPos = frame.Position
 
-    frame.InputBegan:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseButton1 or input.UserInputType == Enum.UserInputType.Touch then
-            dragging = true
-            dragStart = input.Position
-            startPos = frame.Position
+                    input.Changed:Connect(function()
+                        if input.UserInputState == Enum.UserInputState.End then
+                            dragging = false
+                        end
+                    end)
+                end
+            end)
 
-            input.Changed:Connect(function()
-                if input.UserInputState == Enum.UserInputState.End then
-                    dragging = false
+            frame.InputChanged:Connect(function(input)
+                if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
+                    dragInput = input
+                end
+            end)
+
+            game:GetService("UserInputService").InputChanged:Connect(function(input)
+                if input == dragInput and dragging then
+                    update(input)
                 end
             end)
         end
-    end)
 
-    frame.InputChanged:Connect(function(input)
-        if input.UserInputType == Enum.UserInputType.MouseMovement or input.UserInputType == Enum.UserInputType.Touch then
-            dragInput = input
+        EnableDragging(debugUI.MainFrame)
+
+        -- Animate the panel when it appears
+        local function AnimatePanel()
+            local frame = debugUI.MainFrame
+            local goal = {}
+            goal.Position = UDim2.new(0.75, -250, 0.5, -200) -- Slide in from the right
+
+            local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
+
+            local tween = TweenService:Create(frame, info, goal)
+
+            tween:Play()
         end
-    end)
 
-    game:GetService("UserInputService").InputChanged:Connect(function(input)
-        if input == dragInput and dragging then
-            update(input)
-        end
-    end)
+        AnimatePanel()
+    end
 end
-
-EnableDragging(debugUI.MainFrame)
-
--- Animate the panel when it appears
-local function AnimatePanel()
-    local frame = debugUI.MainFrame
-    local goal = {}
-    goal.Position = UDim2.new(0.75, -250, 0.5, -200) -- Slide in from the right
-
-    local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-
-    local tween = TweenService:Create(frame, info, goal)
-
-    tween:Play()
-end
-
-AnimatePanel()
 
 -- Connect to LogService to capture all outputs
 LogService.MessageOut:Connect(function(message, messageType)
@@ -325,3 +333,13 @@ LogService.MessageOut:Connect(function(message, messageType)
         AddDebugMessage(message, "print")
     end
 end)
+
+-- Ensure the GUI is created when the player respawns
+Players.PlayerAdded:Connect(function(player)
+    player.CharacterAdded:Connect(function()
+        SetupDebugUI()
+    end)
+end)
+
+-- Initial setup for the local player
+SetupDebugUI()
