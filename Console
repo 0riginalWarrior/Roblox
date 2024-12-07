@@ -207,7 +207,7 @@ local function AddDebugMessage(message, messageType)
     if listLayout then
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
     end
-    scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y)
+    -- scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y) -- Comment out this line
 end
 
 -- Function to copy all messages
