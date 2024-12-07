@@ -161,15 +161,15 @@ local function AddDebugMessage(message, messageType)
     if messageType == "print" then
         messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White
         messageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
-        emoji = "✅ "
+        emoji = "✅  "
     elseif messageType == "warn" then
         messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 50, 20)
-        emoji = "⚠️ "
+        emoji = "⚠️  "
     elseif messageType == "error" then
         messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Light red for better visibility
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
-        emoji = "❌ "
+        emoji = "❌  "
     end
 
     messageLabel.Text = emoji .. message
@@ -222,7 +222,7 @@ local function CopyAllMessages()
 
             if timestampLabel and messageLabel then
                 -- Remove the emoji from the message
-                local messageText = messageLabel.Text:gsub("✅ ", ""):gsub("⚠️ ", ""):gsub("❌ ", "")
+                local messageText = messageLabel.Text:gsub("✅  ", ""):gsub("⚠️  ", ""):gsub("❌  ", "")
                 allMessages = allMessages .. timestampLabel.Text .. " " .. messageText .. "\n"
             end
         end
