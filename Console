@@ -100,7 +100,8 @@ local function CreateDebugUI()
     local buttonStyles = {
         {Name = "Print", Color = Colors.Print},
         {Name = "Warn", Color = Colors.Warn},
-        {Name = "Clear", Color = Colors.Accent}
+        {Name = "Clear", Color = Colors.Accent},
+        {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)}
     }
 
     for i, style in ipairs(buttonStyles) do
@@ -205,6 +206,28 @@ local function AddDebugMessage(message, messageType)
     scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y)
 end
 
+-- Function to copy all messages
+local function CopyAllMessages()
+    local scrollFrame = game.Players.LocalPlayer.PlayerGui.ModernDebugPanel.MainFrame.ScrollFrame
+    local allMessages = ""
+    
+    for _, child in ipairs(scrollFrame:GetChildren()) do
+        if child:IsA("Frame") then
+            local messageLabel = child:FindFirstChildOfClass("TextLabel")
+            if messageLabel and messageLabel.Name ~= "TitleLabel" then
+                allMessages = allMessages .. messageLabel.Text .. "\n"
+            end
+        end
+    end
+    
+    if allMessages ~= "" then
+        setclipboard(allMessages)
+        print("Copied all messages to clipboard")
+    else
+        print("No messages to copy")
+    end
+end
+
 -- Create the UI
 local debugUI = CreateDebugUI()
 
@@ -229,6 +252,8 @@ local function SetupButtons()
         end
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
     end)
+
+    actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
 end
 
 SetupButtons()
