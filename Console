@@ -11,8 +11,8 @@ local Colors = {
     ButtonHover = Color3.fromRGB(72, 113, 189),
     ScrollBar = Color3.fromRGB(72, 113, 189),
     Print = Color3.fromRGB(76, 175, 80),
-    Warn = Color3.fromRGB(255, 255, 0),
-    Error = Color3.fromRGB(255, 0, 0)
+    Warn = Color3.fromRGB(255, 152, 0),
+    Error = Color3.fromRGB(244, 67, 54)
 }
 
 -- Create Debug GUI
@@ -100,8 +100,7 @@ local function CreateDebugUI()
     local buttonStyles = {
         {Name = "Print", Color = Colors.Print},
         {Name = "Warn", Color = Colors.Warn},
-        {Name = "Clear", Color = Colors.Accent},
-        {Name = "CopyAll", Color = Colors.Accent}
+        {Name = "Clear", Color = Colors.Accent}
     }
 
     for i, style in ipairs(buttonStyles) do
@@ -125,70 +124,96 @@ local function CreateDebugUI()
 end
 
 -- Function to add a debug message
-local messageQueue = {}
-local lastMessageTime = 0
-local messageCooldown = 0.1 -- Cooldown in seconds
-
 local function AddDebugMessage(message, messageType)
-    local currentTime = tick()
-    if currentTime - lastMessageTime < messageCooldown then
-        table.insert(messageQueue, {message, messageType})
-        return
-    end
-    lastMessageTime = currentTime
-
     local scrollFrame = game.Players.LocalPlayer.PlayerGui.ModernDebugPanel.MainFrame.ScrollFrame
-    local messageFrame = Instance.new("Frame")
-    messageFrame.BackgroundTransparency = 0.9
-    messageFrame.BorderSizePixel = 0
 
-    local timestamp = os.date("%H:%M:%S")
+    -- Create a container for the message
+    local messageFrame = Instance.new("Frame")
+    messageFrame.BackgroundTransparency = 0.8
+    messageFrame.BorderSizePixel = 0
+    messageFrame.Size = UDim2.new(1, -10, 0, 40) -- Default size (adjusts later)
+    messageFrame.BackgroundColor3 = Colors.Background
+    messageFrame.Parent = scrollFrame
+
+    -- Add a timestamp label
+    local timestampLabel = Instance.new("TextLabel")
+    timestampLabel.Size = UDim2.new(0, 60, 1, 0)
+    timestampLabel.Position = UDim2.new(0, 5, 0, 0)
+    timestampLabel.BackgroundTransparency = 1
+    timestampLabel.Font = Enum.Font.GothamBold
+    timestampLabel.TextSize = 14
+    timestampLabel.TextXAlignment = Enum.TextXAlignment.Left
+    timestampLabel.TextColor3 = Color3.fromRGB(150, 150, 150) -- Gray for timestamps
+    timestampLabel.Text = "[" .. os.date("%H:%M:%S") .. "]" -- Current time in HH:MM:SS format
+    timestampLabel.Parent = messageFrame
+
+    -- Add the main message text
     local messageLabel = Instance.new("TextLabel")
-    messageLabel.Size = UDim2.new(1, -40, 1, 0)
-    messageLabel.Position = UDim2.new(0, 5, 0, 0)
+    messageLabel.Size = UDim2.new(1, -80, 1, 0)
+    messageLabel.Position = UDim2.new(0, 70, 0, 0)
     messageLabel.BackgroundTransparency = 1
     messageLabel.Font = Enum.Font.Gotham
     messageLabel.TextSize = 14
     messageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    messageLabel.TextWrapped = true
-    messageLabel.RichText = true
-    messageLabel.Parent = messageFrame
+    messageLabel.TextWrapped = true -- Enable text wrapping
 
-    local copyButton = Instance.new("TextButton")
-    copyButton.Size = UDim2.new(0, 20, 0, 20)
-    copyButton.Position = UDim2.new(1, -25, 0, 5)
-    copyButton.BackgroundTransparency = 1
-    copyButton.Text = "📋"
-    copyButton.Font = Enum.Font.SourceSans
-    copyButton.TextSize = 16
-    copyButton.Parent = messageFrame
-    copyButton.MouseButton1Click:Connect(function()
-        setclipboard(message)
-    end)
-
-    local textColor
+    -- Set text and color based on the message type
     if messageType == "print" then
-        messageFrame.BackgroundColor3 = Colors.Print
-        textColor = "White"
+        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White for print messages
+        messageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Subtle dark background for print messages
+        messageLabel.Text = "✅ " .. message -- Add an icon or prefix for print messages
     elseif messageType == "warn" then
-        messageFrame.BackgroundColor3 = Colors.Warn
-        textColor = "Black"
+        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow for warning messages
+        messageFrame.BackgroundColor3 = Color3.fromRGB(80, 60, 20) -- Subtle orange background for warnings
+        messageLabel.Text = "⚠️ " .. message -- Add an icon or prefix for warnings
     elseif messageType == "error" then
-        messageFrame.BackgroundColor3 = Colors.Error
-        textColor = "White"
+        messageLabel.TextColor3 = Colors.Error -- Red for error messages
+        messageFrame.BackgroundColor3 = Color3.fromRGB(80, 20, 20) -- Subtle red background for errors
+        messageLabel.Text = "❌ " .. message -- Add an icon or prefix for errors
     end
 
-    messageLabel.Text = string.format('<font color="Gray">[%s]</font> <font color="%s">%s</font>', timestamp, textColor, message)
+    -- Calculate and adjust size based on text content
+    local textSize = TextService:GetTextSize(message, messageLabel.TextSize, messageLabel.Font, Vector2.new(scrollFrame.AbsoluteSize.X - 100, math.huge))
+    local newHeight = math.max(textSize.Y + 10, 40) -- Ensure a minimum height of 40 pixels for each frame
+    messageFrame.Size = UDim2.new(1, -10, 0, newHeight)
 
-    local textSize = TextService:GetTextSize(message, messageLabel.TextSize, messageLabel.Font, Vector2.new(460, math.huge))
-    messageFrame.Size = UDim2.new(0, textSize.X + 30, 0, textSize.Y + 20)
-    messageLabel.Size = UDim2.new(0, textSize.X, 0, textSize.Y + 10)
+    -- Adjust label sizes to fit the calculated height
+    timestampLabel.Size = UDim2.new(0, 60, 0, newHeight)
+    messageLabel.Size = UDim2.new(1, -80, 0, newHeight)
 
-    messageFrame.Parent = scrollFrame
+    -- Add a copy button to copy the log text to clipboard
+    local copyButton = Instance.new("TextButton")
+    copyButton.Size = UDim2.new(0, 20, 0, newHeight - 10)
+    copyButton.Position = UDim2.new(1, -25, 0.5, -(newHeight / 2) + 5)
+    copyButton.BackgroundTransparency = 1
+    copyButton.TextColor3 = Color3.fromRGB(200, 200, 200)
+    copyButton.Font = Enum.Font.SourceSansBold
+    copyButton.TextSize = 16
+    copyButton.TextXAlignment = Enum.TextXAlignment.Center
+    copyButton.TextYAlignment = Enum.TextYAlignment.Center
+    copyButton.Text = "📋" -- Clipboard emoji icon for copying text
+    copyButton.Parent = messageFrame
 
-    local listLayout = scrollFrame.UIListLayout
-    scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y)
-    scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y)
+    copyButton.MouseButton1Click:Connect(function()
+        setclipboard(message) -- Copy the log text to clipboard when clicked
+        print("Copied to clipboard: " .. tostring(message))
+    end)
+
+    -- Parent the frame and update scrolling canvas size dynamically
+    local listLayout = scrollFrame.UIListLayout or scrollFrame:FindFirstChildOfClass("UIListLayout")
+    
+    if listLayout then 
+        scrollFrame.CanvasSize =
+            UDim2.new(0,
+            0,
+            0,
+            listLayout.AbsoluteContentSize.Y +10 )
+    end 
+    scrollFrame.CanvasPosition =
+        Vector2.new(
+            0,
+            listLayout.AbsoluteContentSize.Y -
+                scrollFrame.AbsoluteWindowSize.Y )
 end
 
 -- Create the UI
@@ -197,12 +222,15 @@ local debugUI = CreateDebugUI()
 -- Setup button functionality
 local function SetupButtons()
     local actionFrame = debugUI.MainFrame.ActionFrame
+
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
         print("This is a test print message")
     end)
+
     actionFrame.WarnButton.MouseButton1Click:Connect(function()
         warn("This is a test warning message")
     end)
+
     actionFrame.ClearButton.MouseButton1Click:Connect(function()
         local scrollFrame = debugUI.MainFrame.ScrollFrame
         for _, child in ipairs(scrollFrame:GetChildren()) do
@@ -211,19 +239,6 @@ local function SetupButtons()
             end
         end
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
-    end)
-    actionFrame.CopyAllButton.MouseButton1Click:Connect(function()
-        local messages = {}
-        local scrollFrame = debugUI.MainFrame.ScrollFrame
-        for _, child in ipairs(scrollFrame:GetChildren()) do
-            if child:IsA("Frame") then
-                local messageLabel = child:FindFirstChildWhichIsA("TextLabel")
-                if messageLabel then
-                    table.insert(messages, messageLabel.Text)
-                end
-            end
-        end
-        setclipboard(table.concat(messages, "\n"))
     end)
 end
 
@@ -291,13 +306,5 @@ LogService.MessageOut:Connect(function(message, messageType)
         AddDebugMessage(message, "warn")
     else
         AddDebugMessage(message, "print")
-    end
-end)
-
--- Process queued messages
-game:GetService("RunService").Heartbeat:Connect(function()
-    if #messageQueue > 0 then
-        local messageData = table.remove(messageQueue, 1)
-        AddDebugMessage(messageData[1], messageData[2])
     end
 end)
