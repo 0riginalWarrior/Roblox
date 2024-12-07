@@ -127,15 +127,12 @@ end
 local function AddDebugMessage(message, messageType)
     local scrollFrame = game.Players.LocalPlayer.PlayerGui.ModernDebugPanel.MainFrame.ScrollFrame
 
-    -- Create a container for the message
     local messageFrame = Instance.new("Frame")
     messageFrame.BackgroundTransparency = 0.8
     messageFrame.BorderSizePixel = 0
-    messageFrame.Size = UDim2.new(1, -10, 0, 40) -- Default size (adjusts later)
-    messageFrame.BackgroundColor3 = Colors.Background
+    messageFrame.Size = UDim2.new(1, -10, 0, 40)
     messageFrame.Parent = scrollFrame
 
-    -- Add a timestamp label
     local timestampLabel = Instance.new("TextLabel")
     timestampLabel.Size = UDim2.new(0, 60, 1, 0)
     timestampLabel.Position = UDim2.new(0, 5, 0, 0)
@@ -143,11 +140,10 @@ local function AddDebugMessage(message, messageType)
     timestampLabel.Font = Enum.Font.GothamBold
     timestampLabel.TextSize = 14
     timestampLabel.TextXAlignment = Enum.TextXAlignment.Left
-    timestampLabel.TextColor3 = Color3.fromRGB(150, 150, 150) -- Gray for timestamps
-    timestampLabel.Text = "[" .. os.date("%H:%M:%S") .. "]" -- Current time in HH:MM:SS format
+    timestampLabel.TextColor3 = Color3.fromRGB(200, 200, 200) -- Lighter gray for better visibility
+    timestampLabel.Text = "[" .. os.date("%H:%M:%S") .. "]"
     timestampLabel.Parent = messageFrame
 
-    -- Add the main message text
     local messageLabel = Instance.new("TextLabel")
     messageLabel.Size = UDim2.new(1, -80, 1, 0)
     messageLabel.Position = UDim2.new(0, 70, 0, 0)
@@ -155,22 +151,23 @@ local function AddDebugMessage(message, messageType)
     messageLabel.Font = Enum.Font.Gotham
     messageLabel.TextSize = 14
     messageLabel.TextXAlignment = Enum.TextXAlignment.Left
-    messageLabel.TextWrapped = true -- Enable text wrapping
+    messageLabel.TextWrapped = true
 
-    -- Set text and color based on the message type
     if messageType == "print" then
-        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White for print messages
-        messageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40) -- Subtle dark background for print messages
-        messageLabel.Text = "✅ " .. message -- Add an icon or prefix for print messages
+        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White
+        messageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
+        messageLabel.Text = "✅ " .. message
     elseif messageType == "warn" then
-        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow for warning messages
-        messageFrame.BackgroundColor3 = Color3.fromRGB(80, 60, 20) -- Subtle orange background for warnings
-        messageLabel.Text = "⚠️ " .. message -- Add an icon or prefix for warnings
+        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
+        messageFrame.BackgroundColor3 = Color3.fromRGB(60, 50, 20)
+        messageLabel.Text = "⚠️ " .. message
     elseif messageType == "error" then
-        messageLabel.TextColor3 = Colors.Error -- Red for error messages
-        messageFrame.BackgroundColor3 = Color3.fromRGB(80, 20, 20) -- Subtle red background for errors
-        messageLabel.Text = "❌ " .. message -- Add an icon or prefix for errors
+        messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Light red for better visibility
+        messageFrame.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
+        messageLabel.Text = "❌ " .. message
     end
+
+    messageLabel.Parent = messageFrame
 
     -- Calculate and adjust size based on text content
     local textSize = TextService:GetTextSize(message, messageLabel.TextSize, messageLabel.Font, Vector2.new(scrollFrame.AbsoluteSize.X - 100, math.huge))
@@ -203,17 +200,9 @@ local function AddDebugMessage(message, messageType)
     local listLayout = scrollFrame.UIListLayout or scrollFrame:FindFirstChildOfClass("UIListLayout")
     
     if listLayout then 
-        scrollFrame.CanvasSize =
-            UDim2.new(0,
-            0,
-            0,
-            listLayout.AbsoluteContentSize.Y +10 )
+        scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
     end 
-    scrollFrame.CanvasPosition =
-        Vector2.new(
-            0,
-            listLayout.AbsoluteContentSize.Y -
-                scrollFrame.AbsoluteWindowSize.Y )
+    scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y)
 end
 
 -- Create the UI
