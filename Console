@@ -24,7 +24,7 @@ local function CreateDebugUI()
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
     mainFrame.Size = UDim2.new(0, 500, 0, 400)
-    mainFrame.Position = UDim2.new(1, 500, 0.5, -200) -- Start off-screen to the right
+    mainFrame.Position = UDim2.new(1, 100, 0.5, -200) -- Start off-screen to the right
     mainFrame.BackgroundColor3 = Colors.Background
     mainFrame.BorderSizePixel = 0
     mainFrame.Parent = screenGui
@@ -136,7 +136,7 @@ local function AddDebugMessage(message, messageType)
     messageFrame.Parent = scrollFrame
 
     local timestampLabel = Instance.new("TextLabel")
-    timestampLabel.Name = "TitleLabel" -- Ensure the name is correct
+    timestampLabel.Name = "TimestampLabel" -- Ensure the name is correct
     timestampLabel.Size = UDim2.new(0, 60, 1, 0)
     timestampLabel.Position = UDim2.new(0, 5, 0, 0)
     timestampLabel.BackgroundTransparency = 1
@@ -148,6 +148,7 @@ local function AddDebugMessage(message, messageType)
     timestampLabel.Parent = messageFrame
 
     local messageLabel = Instance.new("TextLabel")
+    messageLabel.Name = "MessageLabel"
     messageLabel.Size = UDim2.new(1, -80, 1, 0)
     messageLabel.Position = UDim2.new(0, 70, 0, 0)
     messageLabel.BackgroundTransparency = 1
@@ -214,11 +215,10 @@ local function CopyAllMessages()
 
     for _, child in ipairs(scrollFrame:GetChildren()) do
         if child:IsA("Frame") then
-            local timestampLabel = child:FindFirstChild("TitleLabel") -- The timestamp label
-            local messageLabel = child:FindFirstChildOfClass("TextLabel") -- The message label
+            local messageLabel = child:FindFirstChild("MessageLabel") -- The message label
 
-            if timestampLabel and messageLabel then
-                allMessages = allMessages .. timestampLabel.Text .. " " .. messageLabel.Text .. "\n"
+            if messageLabel then
+                allMessages = allMessages .. messageLabel.Text .. "\n"
             end
         end
     end
@@ -303,7 +303,7 @@ EnableDragging(debugUI.MainFrame)
 local function AnimatePanel()
     local frame = debugUI.MainFrame
     local goal = {}
-    goal.Position = UDim2.new(1, -500, 0.5, -200) -- Slide in from the right
+    goal.Position = UDim2.new(0.75, -250, 0.5, -200) -- Slide in from the right
 
     local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
 
