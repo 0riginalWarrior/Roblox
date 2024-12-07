@@ -274,16 +274,18 @@ local function SetupButtons(debugUI, minimizeButton)
         isMinimized = not isMinimized
         local goal = {}
         if isMinimized then
-            goal.Size = UDim2.new(1, 0, 0, 50)
             minimizeButton.Text = "+"
+            goal.BackgroundTransparency = 1
         else
-            goal.Size = UDim2.new(1, 0, 1, 0)
             minimizeButton.Text = "-"
+            goal.BackgroundTransparency = 0
         end
 
         local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
         local tween = TweenService:Create(debugUI.MainFrame.ScrollFrame, info, goal)
         tween:Play()
+        local tween2 = TweenService:Create(debugUI.MainFrame.ActionFrame, info, goal)
+        tween2:Play()
     end)
 end
 
