@@ -63,20 +63,9 @@ local function CreateDebugUI()
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextSize = 20
     titleLabel.TextColor3 = Colors.Text
-    titleLabel.Size = UDim2.new(0, 300, 1, 0)
+    titleLabel.Size = UDim2.new(1, 0, 1, 0)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Parent = header
-
-    local minimizeButton = Instance.new("TextButton")
-    minimizeButton.Name = "MinimizeButton"
-    minimizeButton.Size = UDim2.new(0, 50, 1, 0)
-    minimizeButton.Position = UDim2.new(1, -55, 0, 0)
-    minimizeButton.BackgroundTransparency = 1
-    minimizeButton.Text = "-"
-    minimizeButton.Font = Enum.Font.GothamBold
-    minimizeButton.TextSize = 20
-    minimizeButton.TextColor3 = Colors.Text
-    minimizeButton.Parent = header
 
     local scrollFrame = Instance.new("ScrollingFrame")
     scrollFrame.Name = "ScrollFrame"
@@ -133,7 +122,7 @@ local function CreateDebugUI()
         corner.Parent = button
     end
 
-    return screenGui, minimizeButton
+    return screenGui
 end
 
 -- Function to add a debug message
@@ -245,7 +234,7 @@ local function CopyAllMessages()
 end
 
 -- Setup button functionality
-local function SetupButtons(debugUI, minimizeButton)
+local function SetupButtons(debugUI)
     local actionFrame = debugUI.MainFrame.ActionFrame
 
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
@@ -267,26 +256,6 @@ local function SetupButtons(debugUI, minimizeButton)
     end)
 
     actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
-
-    -- Minimize button functionality
-    local isMinimized = false
-    minimizeButton.MouseButton1Click:Connect(function()
-        isMinimized = not isMinimized
-        local goal = {}
-        if isMinimized then
-            minimizeButton.Text = "+"
-            goal.BackgroundTransparency = 1
-        else
-            minimizeButton.Text = "-"
-            goal.BackgroundTransparency = 0
-        end
-
-        local info = TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out)
-        local tween = TweenService:Create(debugUI.MainFrame.ScrollFrame, info, goal)
-        tween:Play()
-        local tween2 = TweenService:Create(debugUI.MainFrame.ActionFrame, info, goal)
-        tween2:Play()
-    end)
 end
 
 -- Make the frame draggable
@@ -348,9 +317,9 @@ local function SetupDebugUI()
 
     -- Check if the GUI already exists
     if not playerGui:FindFirstChild("ModernDebugPanel") then
-        local debugUI, minimizeButton = CreateDebugUI()
+        local debugUI = CreateDebugUI()
 
-        SetupButtons(debugUI, minimizeButton)
+        SetupButtons(debugUI)
         EnableDragging(debugUI.MainFrame)
         AnimatePanel(debugUI)
     end
