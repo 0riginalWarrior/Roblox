@@ -215,10 +215,11 @@ local function CopyAllMessages()
 
     for _, child in ipairs(scrollFrame:GetChildren()) do
         if child:IsA("Frame") then
+            local timestampLabel = child:FindFirstChild("TimestampLabel") -- The timestamp label
             local messageLabel = child:FindFirstChild("MessageLabel") -- The message label
 
-            if messageLabel then
-                allMessages = allMessages .. messageLabel.Text .. "\n"
+            if timestampLabel and messageLabel then
+                allMessages = allMessages .. timestampLabel.Text .. " " .. messageLabel.Text .. "\n"
             end
         end
     end
