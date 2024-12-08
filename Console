@@ -19,7 +19,6 @@ local Colors = {
 local function CreateDebugUI()
     local screenGui = Instance.new("ScreenGui")
     screenGui.Name = "ModernDebugPanel"
-    screenGui.Parent = Players.LocalPlayer.PlayerGui
 
     local mainFrame = Instance.new("Frame")
     mainFrame.Name = "MainFrame"
@@ -318,6 +317,7 @@ local function SetupDebugUI()
     -- Check if the GUI already exists
     if not playerGui:FindFirstChild("ModernDebugPanel") then
         local debugUI = CreateDebugUI()
+        debugUI.Parent = playerGui
 
         SetupButtons(debugUI)
         EnableDragging(debugUI.MainFrame)
