@@ -126,7 +126,8 @@ end
 
 -- Function to add a debug message
 local function AddDebugMessage(message, messageType)
-    local scrollFrame = Players.LocalPlayer.PlayerGui.ModernDebugPanel.MainFrame.ScrollFrame
+    local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+    local scrollFrame = playerGui.ModernDebugPanel.MainFrame.ScrollFrame
 
     local messageFrame = Instance.new("Frame")
     messageFrame.BackgroundTransparency = 0.8
@@ -211,7 +212,8 @@ end
 
 -- Function to copy all messages
 local function CopyAllMessages()
-    local scrollFrame = Players.LocalPlayer.PlayerGui.ModernDebugPanel.MainFrame.ScrollFrame
+    local playerGui = Players.LocalPlayer:WaitForChild("PlayerGui")
+    local scrollFrame = playerGui.ModernDebugPanel.MainFrame.ScrollFrame
     local allMessages = ""
 
     for _, child in ipairs(scrollFrame:GetChildren()) do
