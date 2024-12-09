@@ -132,6 +132,9 @@ local function AddDebugMessage(message, messageType)
     local player = Players.LocalPlayer
     local scrollFrame = player.PlayerGui:WaitForChild("ModernDebugPanel").MainFrame.ScrollFrame
 
+    -- Extract the function name from the error message
+    local functionName = message:match("^.-:%d+: in function '(.-)'") or message
+
     -- Check if the message is an error and if it has been seen before
     if messageType == "error" then
         local existingFrame = nil
@@ -141,7 +144,7 @@ local function AddDebugMessage(message, messageType)
         for _, child in ipairs(scrollFrame:GetChildren()) do
             if child:IsA("Frame") then
                 local messageLabel = child:FindFirstChild("MessageLabel")
-                if messageLabel and messageLabel.Text == "❌  " .. message then
+                if messageLabel and messageLabel.Text:match("^.-:%d+: in function '(.-)'") == functionName then
                     existingFrame = child
                     countLabel = child:FindFirstChild("CountLabel")
                     break
@@ -249,7 +252,7 @@ local function AddDebugMessage(message, messageType)
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
     end
     -- scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y) -- Comment out this line
-end
+}
 
 -- Function to copy all messages
 local function CopyAllMessages()
