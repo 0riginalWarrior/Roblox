@@ -124,10 +124,23 @@ local function CreateDebugUI()
     return screenGui
 end
 
+-- Table to keep track of error counts
+local errorCounts = {}
+
 -- Function to add a debug message
 local function AddDebugMessage(message, messageType)
     local player = Players.LocalPlayer
     local scrollFrame = player.PlayerGui:WaitForChild("ModernDebugPanel").MainFrame.ScrollFrame
+
+    -- Check if the message is an error and if it has been seen before
+    if messageType == "error" and errorCounts[message] then
+        -- Update the count of the existing error message
+        local existingFrame = errorCounts[message].frame
+        local countLabel = existingFrame:FindFirstChild("CountLabel")
+        errorCounts[message].count = errorCounts[message].count + 1
+        countLabel.Text = "x" .. errorCounts[message].count
+        return
+    end
 
     local messageFrame = Instance.new("Frame")
     messageFrame.BackgroundTransparency = 0.8
@@ -170,6 +183,22 @@ local function AddDebugMessage(message, messageType)
         messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Light red for better visibility
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
         emoji = "❌  "
+
+        -- Initialize the error count
+        errorCounts[message] = {frame = messageFrame, count = 1}
+
+        -- Add a count label for errors
+        local countLabel = Instance.new("TextLabel")
+        countLabel.Name = "CountLabel"
+        countLabel.Size = UDim2.new(0, 30, 1, 0)
+        countLabel.Position = UDim2.new(1, -35, 0, 0)
+        countLabel.BackgroundTransparency = 1
+        countLabel.Font = Enum.Font.GothamBold
+        countLabel.TextSize = 14
+        countLabel.TextXAlignment = Enum.TextXAlignment.Right
+        countLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        countLabel.Text = "x1"
+        countLabel.Parent = messageFrame
     end
 
     messageLabel.Text = emoji .. message
@@ -220,11 +249,13 @@ local function CopyAllMessages()
         if child:IsA("Frame") then
             local timestampLabel = child:FindFirstChild("TimestampLabel") -- The timestamp label
             local messageLabel = child:FindFirstChild("MessageLabel") -- The message label
+            local countLabel = child:FindFirstChild("CountLabel") -- The count label
 
             if timestampLabel and messageLabel then
                 -- Remove the emoji from the message
                 local messageText = messageLabel.Text:gsub("✅  ", ""):gsub("⚠️  ", ""):gsub("❌  ", "")
-                allMessages = allMessages .. timestampLabel.Text .. " " .. messageText .. "\n"
+                local countText = countLabel and countLabel.Text or ""
+                allMessages = allMessages .. timestampLabel.Text .. " " .. messageText .. " " .. countText .. "\n"
             end
         end
     end
@@ -254,6 +285,7 @@ local function SetupButtons(debugUI)
             end
         end
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        errorCounts = {} -- Reset error counts
     end)
 
     actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
