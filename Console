@@ -162,7 +162,7 @@ local function AddDebugMessage(message, messageType)
 
     local messageLabel = Instance.new("TextLabel")
     messageLabel.Name = "MessageLabel"
-    messageLabel.Size = UDim2.new(1, -80, 1, 0)
+    messageLabel.Size = UDim2.new(1, -100, 1, 0)
     messageLabel.Position = UDim2.new(0, 70, 0, 0)
     messageLabel.BackgroundTransparency = 1
     messageLabel.Font = Enum.Font.Gotham
@@ -191,7 +191,7 @@ local function AddDebugMessage(message, messageType)
         local countLabel = Instance.new("TextLabel")
         countLabel.Name = "CountLabel"
         countLabel.Size = UDim2.new(0, 30, 1, 0)
-        countLabel.Position = UDim2.new(1, -35, 0, 0)
+        countLabel.Position = UDim2.new(1, -55, 0, 0)
         countLabel.BackgroundTransparency = 1
         countLabel.Font = Enum.Font.GothamBold
         countLabel.TextSize = 14
@@ -211,7 +211,7 @@ local function AddDebugMessage(message, messageType)
 
     -- Adjust label sizes to fit the calculated height
     timestampLabel.Size = UDim2.new(0, 60, 0, newHeight)
-    messageLabel.Size = UDim2.new(1, -80, 0, newHeight)
+    messageLabel.Size = UDim2.new(1, -100, 0, newHeight)
 
     -- Add a copy button to copy the log text to clipboard
     local copyButton = Instance.new("TextButton")
