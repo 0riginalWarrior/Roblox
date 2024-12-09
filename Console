@@ -311,6 +311,12 @@ local function SetupButtons(debugUI)
 end
 
 -- Make the frame draggable
+local function EnableDragging(frame)
+    local dragging
+    local dragInput
+    local dragStart
+    local startPos
+
     local function update(input)
         local delta = input.Position - dragStart
         frame.Position = UDim2.new(startPos.X.Scale, startPos.X.Offset + delta.X, startPos.Y.Scale, startPos.Y.Offset + delta.Y)
