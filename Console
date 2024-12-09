@@ -143,6 +143,7 @@ end
 
 -- Table to keep track of error counts
 local errorCounts = {}
+local currentFilter = "All"
 
 -- Function to add a debug message
 local function AddDebugMessage(message, messageType)
@@ -271,6 +272,9 @@ local function AddDebugMessage(message, messageType)
     if listLayout then
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
     end
+
+    -- Apply the current filter
+    FilterMessages(currentFilter)
 end
 
 -- Function to copy all messages
@@ -343,7 +347,6 @@ local function SetupButtons(debugUI)
 
     -- Setup filter dropdown functionality
     local filterTypes = {"All", "Print", "Warn", "Error"}
-    local currentFilter = "All"
 
     filterDropdown.MouseButton1Click:Connect(function()
         currentFilter = filterTypes[(currentFilter == "All" and 2 or (currentFilter == "Print" and 3 or (currentFilter == "Warn" and 4 or 1)))]
