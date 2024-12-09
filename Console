@@ -121,6 +121,23 @@ local function CreateDebugUI()
         corner.Parent = button
     end
 
+    -- Add a dropdown menu for filtering by type
+    local filterDropdown = Instance.new("TextButton")
+    filterDropdown.Name = "FilterDropdown"
+    filterDropdown.Text = "Filter: All"
+    filterDropdown.BackgroundColor3 = Colors.Accent
+    filterDropdown.BorderSizePixel = 0
+    filterDropdown.Font = Enum.Font.GothamBold
+    filterDropdown.TextSize = 14
+    filterDropdown.TextColor3 = Colors.Text
+    filterDropdown.Size = UDim2.new(0, 100, 0, 30)
+    filterDropdown.Position = UDim2.new(0, 10, 0, 10)
+    filterDropdown.Parent = mainFrame
+
+    local filterCorner = Instance.new("UICorner")
+    filterCorner.CornerRadius = UDim.new(0, 8)
+    filterCorner.Parent = filterDropdown
+
     return screenGui
 end
 
@@ -220,6 +237,7 @@ local function AddDebugMessage(message, messageType)
 
     -- Set the ErrorKey attribute
     messageFrame:SetAttribute("ErrorKey", errorKey)
+    messageFrame:SetAttribute("MessageType", messageType)
 
     -- Calculate and adjust size based on text content
     local textSize = TextService:GetTextSize(message, messageLabel.TextSize, messageLabel.Font, Vector2.new(scrollFrame.AbsoluteSize.X - 100, math.huge))
@@ -280,9 +298,27 @@ local function CopyAllMessages()
     end
 end
 
+-- Function to filter messages by type
+local function FilterMessages(filterType)
+    local player = Players.LocalPlayer
+    local scrollFrame = player.PlayerGui:WaitForChild("ModernDebugPanel").MainFrame.ScrollFrame
+
+    for _, child in ipairs(scrollFrame:GetChildren()) do
+        if child:IsA("Frame") then
+            local messageType = child:GetAttribute("MessageType")
+            if filterType == "All" or messageType == filterType then
+                child.Visible = true
+            else
+                child.Visible = false
+            end
+        end
+    end
+end
+
 -- Setup button functionality
 local function SetupButtons(debugUI)
     local actionFrame = debugUI.MainFrame.ActionFrame
+    local filterDropdown = debugUI.MainFrame.FilterDropdown
 
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
         print("This is a test print Message")
@@ -304,6 +340,16 @@ local function SetupButtons(debugUI)
     end)
 
     actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
+
+    -- Setup filter dropdown functionality
+    local filterTypes = {"All", "Print", "Warn", "Error"}
+    local currentFilter = "All"
+
+    filterDropdown.MouseButton1Click:Connect(function()
+        currentFilter = filterTypes[(currentFilter == "All" and 2 or (currentFilter == "Print" and 3 or (currentFilter == "Warn" and 4 or 1)))]
+        filterDropdown.Text = "Filter: " .. currentFilter
+        FilterMessages(currentFilter)
+    end)
 end
 
 -- Make the frame draggable
