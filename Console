@@ -133,13 +133,28 @@ local function AddDebugMessage(message, messageType)
     local scrollFrame = player.PlayerGui:WaitForChild("ModernDebugPanel").MainFrame.ScrollFrame
 
     -- Check if the message is an error and if it has been seen before
-    if messageType == "error" and errorCounts[message] then
-        -- Update the count of the existing error message
-        local existingFrame = errorCounts[message].frame
-        local countLabel = existingFrame:FindFirstChild("CountLabel")
-        errorCounts[message].count = errorCounts[message].count + 1
-        countLabel.Text = "x" .. errorCounts[message].count
-        return
+    if messageType == "error" then
+        local existingFrame = nil
+        local countLabel = nil
+
+        -- Check if the error message already exists
+        for _, child in ipairs(scrollFrame:GetChildren()) do
+            if child:IsA("Frame") then
+                local messageLabel = child:FindFirstChild("MessageLabel")
+                if messageLabel and messageLabel.Text == "❌  " .. message then
+                    existingFrame = child
+                    countLabel = child:FindFirstChild("CountLabel")
+                    break
+                end
+            end
+        end
+
+        if existingFrame then
+            -- Update the count of the existing error message
+            local count = tonumber(countLabel.Text:sub(2)) + 1
+            countLabel.Text = "x" .. count
+            return
+        end
     end
 
     local messageFrame = Instance.new("Frame")
@@ -183,9 +198,6 @@ local function AddDebugMessage(message, messageType)
         messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Light red for better visibility
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
         emoji = "❌  "
-
-        -- Initialize the error count
-        errorCounts[message] = {frame = messageFrame, count = 1}
 
         -- Add a count label for errors
         local countLabel = Instance.new("TextLabel")
