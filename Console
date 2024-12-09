@@ -101,7 +101,7 @@ local function CreateDebugUI()
         {Name = "Print", Color = Colors.Print},
         {Name = "Warn", Color = Colors.Warn},
         {Name = "Clear", Color = Colors.Accent},
-        {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)} -- New Copy All button style
+        {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)}
     }
 
     for i, style in ipairs(buttonStyles) do
@@ -124,10 +124,40 @@ local function CreateDebugUI()
     return screenGui
 end
 
+-- Table to keep track of error counts
+local errorCounts = {}
+
 -- Function to add a debug message
 local function AddDebugMessage(message, messageType)
     local player = Players.LocalPlayer
     local scrollFrame = player.PlayerGui:WaitForChild("ModernDebugPanel").MainFrame.ScrollFrame
+
+    -- Extract the function name from the error message
+    local functionName = message:match("in function '(.-)'") or "Unknown"
+
+    -- Create a unique key for this error type
+    local errorKey = functionName
+
+    if messageType == "error" then
+        local existingFrame = nil
+        local countLabel = nil
+
+        -- Check if the error message already exists
+        for _, child in ipairs(scrollFrame:GetChildren()) do
+            if child:IsA("Frame") and child:GetAttribute("ErrorKey") == errorKey then
+                existingFrame = child
+                countLabel = child:FindFirstChild("CountLabel")
+                break
+            end
+        end
+
+        if existingFrame then
+            -- Update the count of the existing error message
+            local count = tonumber(countLabel.Text:sub(2)) + 1
+            countLabel.Text = "x" .. count
+            return
+        end
+    end
 
     local messageFrame = Instance.new("Frame")
     messageFrame.BackgroundTransparency = 0.8
@@ -136,20 +166,20 @@ local function AddDebugMessage(message, messageType)
     messageFrame.Parent = scrollFrame
 
     local timestampLabel = Instance.new("TextLabel")
-    timestampLabel.Name = "TimestampLabel" -- Ensure the name is correct
+    timestampLabel.Name = "TimestampLabel"
     timestampLabel.Size = UDim2.new(0, 60, 1, 0)
     timestampLabel.Position = UDim2.new(0, 5, 0, 0)
     timestampLabel.BackgroundTransparency = 1
     timestampLabel.Font = Enum.Font.GothamBold
     timestampLabel.TextSize = 14
     timestampLabel.TextXAlignment = Enum.TextXAlignment.Left
-    timestampLabel.TextColor3 = Color3.fromRGB(200, 200, 200) -- Lighter gray for better visibility
+    timestampLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
     timestampLabel.Text = "[" .. os.date("%H:%M:%S") .. "]"
     timestampLabel.Parent = messageFrame
 
     local messageLabel = Instance.new("TextLabel")
     messageLabel.Name = "MessageLabel"
-    messageLabel.Size = UDim2.new(1, -80, 1, 0)
+    messageLabel.Size = UDim2.new(1, -100, 1, 0)
     messageLabel.Position = UDim2.new(0, 70, 0, 0)
     messageLabel.BackgroundTransparency = 1
     messageLabel.Font = Enum.Font.Gotham
@@ -159,30 +189,46 @@ local function AddDebugMessage(message, messageType)
 
     local emoji = ""
     if messageType == "print" then
-        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255) -- White
+        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 255)
         messageFrame.BackgroundColor3 = Color3.fromRGB(40, 40, 40)
         emoji = "✅  "
     elseif messageType == "warn" then
-        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0) -- Yellow
+        messageLabel.TextColor3 = Color3.fromRGB(255, 255, 0)
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 50, 20)
         emoji = "⚠️  "
     elseif messageType == "error" then
-        messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100) -- Light red for better visibility
+        messageLabel.TextColor3 = Color3.fromRGB(255, 100, 100)
         messageFrame.BackgroundColor3 = Color3.fromRGB(60, 20, 20)
         emoji = "❌  "
+
+        -- Add a count label for errors
+        local countLabel = Instance.new("TextLabel")
+        countLabel.Name = "CountLabel"
+        countLabel.Size = UDim2.new(0, 30, 1, 0)
+        countLabel.Position = UDim2.new(1, -55, 0, 0)
+        countLabel.BackgroundTransparency = 1
+        countLabel.Font = Enum.Font.GothamBold
+        countLabel.TextSize = 14
+        countLabel.TextXAlignment = Enum.TextXAlignment.Right
+        countLabel.TextColor3 = Color3.fromRGB(200, 200, 200)
+        countLabel.Text = "x1"
+        countLabel.Parent = messageFrame
     end
 
     messageLabel.Text = emoji .. message
     messageLabel.Parent = messageFrame
 
+    -- Set the ErrorKey attribute
+    messageFrame:SetAttribute("ErrorKey", errorKey)
+
     -- Calculate and adjust size based on text content
     local textSize = TextService:GetTextSize(message, messageLabel.TextSize, messageLabel.Font, Vector2.new(scrollFrame.AbsoluteSize.X - 100, math.huge))
-    local newHeight = math.max(textSize.Y + 10, 40) -- Ensure a minimum height of 40 pixels for each frame
+    local newHeight = math.max(textSize.Y + 10, 40)
     messageFrame.Size = UDim2.new(1, -10, 0, newHeight)
 
     -- Adjust label sizes to fit the calculated height
     timestampLabel.Size = UDim2.new(0, 60, 0, newHeight)
-    messageLabel.Size = UDim2.new(1, -80, 0, newHeight)
+    messageLabel.Size = UDim2.new(1, -100, 0, newHeight)
 
     -- Add a copy button to copy the log text to clipboard
     local copyButton = Instance.new("TextButton")
@@ -194,11 +240,11 @@ local function AddDebugMessage(message, messageType)
     copyButton.TextSize = 16
     copyButton.TextXAlignment = Enum.TextXAlignment.Center
     copyButton.TextYAlignment = Enum.TextYAlignment.Center
-    copyButton.Text = "📋" -- Clipboard emoji icon for copying text
+    copyButton.Text = "📋"
     copyButton.Parent = messageFrame
 
     copyButton.MouseButton1Click:Connect(function()
-        setclipboard(message) -- Copy the log text to clipboard when clicked
+        setclipboard(message)
     end)
 
     -- Parent the frame and update scrolling canvas size dynamically
@@ -207,7 +253,6 @@ local function AddDebugMessage(message, messageType)
     if listLayout then
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, listLayout.AbsoluteContentSize.Y + 10)
     end
-    -- scrollFrame.CanvasPosition = Vector2.new(0, listLayout.AbsoluteContentSize.Y - scrollFrame.AbsoluteWindowSize.Y) -- Comment out this line
 end
 
 -- Function to copy all messages
@@ -218,13 +263,14 @@ local function CopyAllMessages()
 
     for _, child in ipairs(scrollFrame:GetChildren()) do
         if child:IsA("Frame") then
-            local timestampLabel = child:FindFirstChild("TimestampLabel") -- The timestamp label
-            local messageLabel = child:FindFirstChild("MessageLabel") -- The message label
+            local timestampLabel = child:FindFirstChild("TimestampLabel")
+            local messageLabel = child:FindFirstChild("MessageLabel")
+            local countLabel = child:FindFirstChild("CountLabel")
 
             if timestampLabel and messageLabel then
-                -- Remove the emoji from the message
                 local messageText = messageLabel.Text:gsub("✅  ", ""):gsub("⚠️  ", ""):gsub("❌  ", "")
-                allMessages = allMessages .. timestampLabel.Text .. " " .. messageText .. "\n"
+                local countText = countLabel and countLabel.Text or ""
+                allMessages = allMessages .. timestampLabel.Text .. " " .. messageText .. " " .. countText .. "\n"
             end
         end
     end
@@ -254,6 +300,7 @@ local function SetupButtons(debugUI)
             end
         end
         scrollFrame.CanvasSize = UDim2.new(0, 0, 0, 0)
+        errorCounts = {}
     end)
 
     actionFrame["Copy AllButton"].MouseButton1Click:Connect(CopyAllMessages)
