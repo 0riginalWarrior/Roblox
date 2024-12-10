@@ -325,11 +325,15 @@ local function SetupButtons(debugUI)
     local filterDropdown = debugUI.MainFrame.FilterDropdown
 
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
-        print("This is a test print Message")
+        if currentFilter == "Print" then
+            print("This is a test print Message")
+        end
     end)
 
     actionFrame.WarnButton.MouseButton1Click:Connect(function()
-        warn("This is a test warning Message")
+        if currentFilter == "Warn" then
+            warn("This is a test warning Message")
+        end
     end)
 
     actionFrame.ClearButton.MouseButton1Click:Connect(function()
