@@ -100,7 +100,6 @@ local function CreateDebugUI()
     local buttonStyles = {
         {Name = "Print", Color = Colors.Print},
         {Name = "Warn", Color = Colors.Warn},
-        {Name = "Error", Color = Colors.Error},
         {Name = "Clear", Color = Colors.Accent},
         {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)}
     }
@@ -333,10 +332,6 @@ local function SetupButtons(debugUI)
         warn("This is a test warning Message")
     end)
 
-    actionFrame.ErrorButton.MouseButton1Click:Connect(function()
-        error("This is a test error Message")
-    end)
-
     actionFrame.ClearButton.MouseButton1Click:Connect(function()
         local scrollFrame = debugUI.MainFrame.ScrollFrame
         for _, child in ipairs(scrollFrame:GetChildren()) do
@@ -352,11 +347,9 @@ local function SetupButtons(debugUI)
 
     -- Setup filter dropdown functionality
     local filterTypes = {"All", "Print", "Warn", "Error"}
-    local filterIndex = 1
 
     filterDropdown.MouseButton1Click:Connect(function()
-        filterIndex = (filterIndex % #filterTypes) + 1
-        currentFilter = filterTypes[filterIndex]
+        currentFilter = filterTypes[(currentFilter == "All" and 2 or (currentFilter == "Print" and 3 or (currentFilter == "Warn" and 4 or 1)))]
         filterDropdown.Text = "Filter: " .. currentFilter
         FilterMessages(currentFilter)
     end)
