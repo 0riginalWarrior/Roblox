@@ -100,6 +100,7 @@ local function CreateDebugUI()
     local buttonStyles = {
         {Name = "Print", Color = Colors.Print},
         {Name = "Warn", Color = Colors.Warn},
+        {Name = "Error", Color = Colors.Error},
         {Name = "Clear", Color = Colors.Accent},
         {Name = "Copy All", Color = Color3.fromRGB(50, 150, 250)}
     }
@@ -325,15 +326,15 @@ local function SetupButtons(debugUI)
     local filterDropdown = debugUI.MainFrame.FilterDropdown
 
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
-        if currentFilter == "Print" then
-            print("This is a test print Message")
-        end
+        print("This is a test print Message")
     end)
 
     actionFrame.WarnButton.MouseButton1Click:Connect(function()
-        if currentFilter == "Warn" then
-            warn("This is a test warning Message")
-        end
+        warn("This is a test warning Message")
+    end)
+
+    actionFrame.ErrorButton.MouseButton1Click:Connect(function()
+        error("This is a test error Message")
     end)
 
     actionFrame.ClearButton.MouseButton1Click:Connect(function()
@@ -351,9 +352,11 @@ local function SetupButtons(debugUI)
 
     -- Setup filter dropdown functionality
     local filterTypes = {"All", "Print", "Warn", "Error"}
+    local filterIndex = 1
 
     filterDropdown.MouseButton1Click:Connect(function()
-        currentFilter = filterTypes[(currentFilter == "All" and 2 or (currentFilter == "Print" and 3 or (currentFilter == "Warn" and 4 or 1)))]
+        filterIndex = (filterIndex % #filterTypes) + 1
+        currentFilter = filterTypes[filterIndex]
         filterDropdown.Text = "Filter: " .. currentFilter
         FilterMessages(currentFilter)
     end)
