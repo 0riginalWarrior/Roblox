@@ -62,9 +62,20 @@ local function CreateDebugUI()
     titleLabel.Font = Enum.Font.GothamBold
     titleLabel.TextSize = 20
     titleLabel.TextColor3 = Colors.Text
-    titleLabel.Size = UDim2.new(1, 0, 1, 0)
+    titleLabel.Size = UDim2.new(0.8, 0, 1, 0)
     titleLabel.BackgroundTransparency = 1
     titleLabel.Parent = header
+
+    local toggleButton = Instance.new("TextButton")
+    toggleButton.Name = "ToggleButton"
+    toggleButton.Size = UDim2.new(0.2, 0, 1, 0)
+    toggleButton.Position = UDim2.new(0.8, 0, 0, 0)
+    toggleButton.BackgroundTransparency = 1
+    toggleButton.Text = "▼"
+    toggleButton.Font = Enum.Font.GothamBold
+    toggleButton.TextSize = 20
+    toggleButton.TextColor3 = Colors.Text
+    toggleButton.Parent = header
 
     local scrollFrame = Instance.new("ScrollingFrame")
     scrollFrame.Name = "ScrollFrame"
@@ -323,6 +334,20 @@ end
 local function SetupButtons(debugUI)
     local actionFrame = debugUI.MainFrame.ActionFrame
     local filterDropdown = debugUI.MainFrame.FilterDropdown
+    local toggleButton = debugUI.MainFrame.Header.ToggleButton
+    local mainFrame = debugUI.MainFrame
+    local isExpanded = true
+
+    toggleButton.MouseButton1Click:Connect(function()
+        isExpanded = not isExpanded
+        if isExpanded then
+            toggleButton.Text = "▼"
+            TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 400)}):Play()
+        else
+            toggleButton.Text = "▲"
+            TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 50)}):Play()
+        end
+    end)
 
     actionFrame.PrintButton.MouseButton1Click:Connect(function()
         print("This is a test print Message")
@@ -407,7 +432,7 @@ local function AnimatePanel(debugUI)
     tween:Play()
 end
 
--- Ensure the GUI is created when the player respawns
+-- Ensure the GUI is created only once and is always present
 local function SetupDebugUI()
     local player = Players.LocalPlayer
     local playerGui = player:WaitForChild("PlayerGui")
@@ -434,7 +459,7 @@ LogService.MessageOut:Connect(function(message, messageType)
     end
 end)
 
--- Ensure the GUI is created when the player respawns
+-- Ensure the GUI is created only once and is always present
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function()
         SetupDebugUI()
