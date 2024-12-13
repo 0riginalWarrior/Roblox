@@ -462,7 +462,9 @@ end)
 -- Ensure the GUI is created only once and is always present
 Players.PlayerAdded:Connect(function(player)
     player.CharacterAdded:Connect(function()
-        SetupDebugUI()
+        if player == Players.LocalPlayer then
+            SetupDebugUI()
+        end
     end)
 end)
 
