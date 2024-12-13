@@ -336,6 +336,8 @@ local function SetupButtons(debugUI)
     local filterDropdown = debugUI.MainFrame.FilterDropdown
     local toggleButton = debugUI.MainFrame.Header.ToggleButton
     local mainFrame = debugUI.MainFrame
+    local scrollFrame = debugUI.MainFrame.ScrollFrame
+    local actionFrame = debugUI.MainFrame.ActionFrame
     local isExpanded = true
 
     toggleButton.MouseButton1Click:Connect(function()
@@ -343,9 +345,15 @@ local function SetupButtons(debugUI)
         if isExpanded then
             toggleButton.Text = "▼"
             TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 400)}):Play()
+            scrollFrame.Visible = true
+            actionFrame.Visible = true
+            filterDropdown.Visible = true
         else
             toggleButton.Text = "▲"
             TweenService:Create(mainFrame, TweenInfo.new(0.5, Enum.EasingStyle.Quad, Enum.EasingDirection.Out), {Size = UDim2.new(0, 500, 0, 50)}):Play()
+            scrollFrame.Visible = false
+            actionFrame.Visible = false
+            filterDropdown.Visible = false
         end
     end)
 
@@ -358,7 +366,6 @@ local function SetupButtons(debugUI)
     end)
 
     actionFrame.ClearButton.MouseButton1Click:Connect(function()
-        local scrollFrame = debugUI.MainFrame.ScrollFrame
         for _, child in ipairs(scrollFrame:GetChildren()) do
             if child:IsA("Frame") then
                 child:Destroy()
